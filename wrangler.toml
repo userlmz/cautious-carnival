@@ -1,0 +1,9 @@
+name = "yixin-album"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "."
+
+# D1 云数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "yixin-album"
+database_id = "2d8ef1a6-1928-472f-aebe-f177200a329c"

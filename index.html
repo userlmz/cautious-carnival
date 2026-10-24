@@ -1,0 +1,621 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>益新中学 2024级5班 · 回忆录相册</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif;user-select:none;}
+        input,textarea{user-select:text;}
+        :root{
+            --bg-dark:#12141f; --bg-light:#f7f8fa;
+            --text-dark:#e9ecf5; --text-light:#1b1f2c;
+            --card-dark:#1d2233; --card-light:#ffffff;
+            --accent:#4769b3;
+            --shadow-soft:0 3px 12px rgba(0,0,0,0.16);
+            --shadow-deep:0 9px 28px rgba(0,0,0,0.28);
+            --tr:all 0.4s cubic-bezier(0.28,0.82,0.28,1);
+        }
+        body{background:var(--bg-dark);color:var(--text-dark);transition:var(--tr);overflow-x:hidden;min-height:100vh;}
+        body.light-mode{background:var(--bg-light);color:var(--text-light);}
+
+        .music-bar{position:fixed;right:22px;top:120px;z-index:999;width:56px;height:210px;background:rgba(29,34,51,0.86);backdrop-filter:blur(9px);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-shadow:var(--shadow-deep);border:1px solid rgba(255,255,255,0.11);}
+        body.light-mode .music-bar{background:rgba(255,255,255,0.91);border:1px solid rgba(0,0,0,0.09);}
+        .music-btn{width:40px;height:40px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:var(--tr);}
+        .music-btn:hover{transform:scale(1.07);}
+        .music-label{writing-mode:vertical-rl;font-size:13px;opacity:0.72;letter-spacing:2px;}
+
+        header{padding:42px 32px 20px;position:relative;}
+        .header-wrap{max-width:1360px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;}
+        .main-title{font-size:33px;font-weight:420;letter-spacing:1.6px;position:relative;}
+        .main-title::after{content:"";position:absolute;bottom:-6px;left:0;width:72px;height:2px;background:var(--accent);}
+        .sub-title{margin-top:12px;opacity:0.64;font-size:15px;}
+        .header-right{display:flex;align-items:center;gap:14px;}
+        .logo-text{font-size:20px;font-weight:600;}
+        .badge-img{width:64px;height:64px;border-radius:8px;object-fit:cover;}
+
+        .control-panel{max-width:1360px;margin:0 auto 36px;padding:0 32px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+        .ctrl-btn{padding:9px 16px;border:none;border-radius:9px;cursor:pointer;font-size:14px;background:#282d40;color:#fff;transition:var(--tr);}
+        body.light-mode .ctrl-btn{background:#e4e8f1;color:#222;}
+        .ctrl-btn:hover{filter:brightness(1.13);transform:translateY(-2px);}
+        .ctrl-btn.active{background:var(--accent);}
+        .edit-status-tip{margin-left:12px;font-size:13px;color:#4fc373;display:none;}
+
+        .gallery-corridor{max-width:1360px;margin:0 auto;padding:0 32px 40px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#4769b3 #1d2233;}
+        .gallery-corridor::-webkit-scrollbar{height:8px;}
+        .gallery-corridor::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:4px;}
+        .gallery-corridor::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px;}
+        .corridor-inner{display:flex;gap:34px;padding:20px 0;}
+        .photo-card{flex-shrink:0;width:380px;aspect-ratio:4/3;background:var(--card-dark);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-soft);transition:var(--tr);position:relative;border:1px solid rgba(255,255,255,0.07);}
+        body.light-mode .photo-card{background:var(--card-light);border:1px solid rgba(0,0,0,0.07);}
+        .photo-card:hover{transform:translateY(-7px);box-shadow:var(--shadow-deep);}
+        .photo-card img{width:100%;height:100%;object-fit:cover;display:block;}
+        .photo-card .photo-caption{position:absolute;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(transparent,rgba(0,0,0,0.70));color:#fff;font-size:14px;}
+        .photo-card .photo-tag{position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:20px;font-size:12px;background:rgba(71,105,179,0.85);color:#fff;}
+        .photo-card input.caption-input{display:none;width:calc(100% - 28px);position:absolute;bottom:10px;left:14px;background:rgba(255,255,255,0.12);border:none;color:#fff;padding:4px 6px;border-radius:4px;font-size:14px;}
+        body.admin-on .photo-card input.caption-input{display:block;}
+        .photo-card .card-del{position:absolute;top:10px;right:10px;display:none;width:30px;height:30px;border-radius:50%;border:none;background:rgba(224,108,90,0.9);color:#fff;cursor:pointer;font-size:14px;}
+        body.admin-on .photo-card .card-del{display:block;}
+
+        .content-blocks{max-width:1360px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:3fr 2fr;gap:28px;align-items:start;}
+        .block-card{padding:28px;border-radius:16px;background:var(--card-dark);box-shadow:var(--shadow-soft);border:1px solid rgba(255,255,255,0.07);}
+        body.light-mode .block-card{background:var(--card-light);border:1px solid rgba(0,0,0,0.07);}
+        .block-title{font-size:20px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.11);padding-bottom:10px;position:relative;}
+        .block-title::before{content:"";width:4px;height:18px;background:var(--accent);position:absolute;left:-12px;top:2px;border-radius:2px;}
+        body.light-mode .block-title{border-bottom:1px solid rgba(0,0,0,0.08);}
+        .video-wrap{width:100%;aspect-ratio:16/9;background:#24283a;border-radius:10px;margin-top:12px;display:flex;align-items:center;justify-content:center;color:#aaa;text-align:center;padding:10px;font-size:14px;}
+        body.light-mode .video-wrap{background:#e8ebf2;}
+
+        /* ============ 论坛式发帖区 ============ */
+        .forum-tip{font-size:13px;opacity:0.78;line-height:1.7;margin-bottom:14px;background:rgba(71,105,179,0.12);border-left:3px solid var(--accent);padding:8px 12px;border-radius:0 8px 8px 0;}
+        .forum-form{display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+        .forum-name,.forum-text{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);color:inherit;font-size:14px;resize:vertical;}
+        .forum-text{min-height:72px;}
+        body.light-mode .forum-name,body.light-mode .forum-text{background:#fff;border:1px solid #ddd;color:#222;}
+        .forum-form-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+        .forum-left-row{display:flex;align-items:center;gap:10px;}
+        .forum-count{font-size:12px;opacity:0.6;}
+        .forum-submit{background:var(--accent);color:#fff;font-weight:600;}
+        .forum-img-btn{padding:8px 14px;border-radius:9px;border:1px dashed var(--accent);background:transparent;color:inherit;font-size:13px;cursor:pointer;transition:var(--tr);}
+        .forum-img-btn:hover{background:rgba(71,105,179,0.15);}
+        .forum-img-preview-wrap{display:none;position:relative;width:fit-content;}
+        .forum-img-preview{max-width:180px;max-height:120px;border-radius:8px;display:block;border:1px solid rgba(255,255,255,0.2);}
+        .forum-img-clear{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;border:none;background:#e06c5a;color:#fff;cursor:pointer;font-size:12px;line-height:1;}
+        .forum-status{font-size:13px;min-height:20px;margin:6px 0 8px;}
+        .forum-status.ok{color:#4fc373;}
+        .forum-status.err{color:#e06c5a;}
+        .forum-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);align-items:flex-start;}
+        body.light-mode .forum-item{border-bottom:1px solid rgba(0,0,0,0.08);}
+        .forum-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;}
+        .forum-body{flex:1;min-width:0;}
+        .forum-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px;flex-wrap:wrap;}
+        .forum-nickname{font-weight:600;font-size:15px;}
+        .forum-time{font-size:12px;opacity:0.55;}
+        .forum-content{line-height:1.65;font-size:14px;opacity:0.94;word-break:break-word;user-select:text;white-space:pre-wrap;}
+        .forum-photo{margin-top:8px;max-width:100%;max-height:320px;border-radius:10px;cursor:zoom-in;display:block;border:1px solid rgba(255,255,255,0.12);}
+        .forum-del{margin-left:auto;font-size:12px;padding:3px 10px;border-radius:6px;border:none;background:rgba(224,108,90,0.16);color:#e06c5a;cursor:pointer;display:none;}
+        body.admin-on .forum-del{display:inline-block;}
+        .forum-del:hover{background:rgba(224,108,90,0.3);}
+        .forum-empty{text-align:center;opacity:0.55;padding:22px 0;font-size:14px;}
+        .forum-refresh{font-size:12px;opacity:0.55;background:none;border:none;color:inherit;cursor:pointer;text-decoration:underline;}
+        .demo-banner{display:none;margin-bottom:12px;padding:8px 12px;border-radius:8px;font-size:13px;background:rgba(230,180,60,0.15);border-left:3px solid #e6b43c;}
+
+        .img-viewer{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;cursor:zoom-out;}
+        .img-viewer.show{display:flex;}
+        .img-viewer img{max-width:94vw;max-height:92vh;border-radius:8px;}
+
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.74);z-index:9999;justify-content:center;align-items:center;}
+        .modal-overlay.show{display:flex;}
+        .modal-box{width:90%;max-width:440px;background:var(--card-dark);padding:30px;border-radius:16px;box-shadow:var(--shadow-deep);border:1px solid rgba(255,255,255,0.09);}
+        body.light-mode .modal-box{background:var(--card-light);border:1px solid rgba(0,0,0,0.09);}
+        .modal-title{font-size:22px;margin-bottom:18px;}
+        .modal-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;margin-bottom:16px;}
+        body.light-mode .modal-input{border:1px solid #d8d8d8;background:#fff;color:#222;}
+        .modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+        .qr-img{width:260px;display:block;margin:0 auto 16px;}
+
+        footer{padding:40px 32px;text-align:center;opacity:0.60;font-size:14px;line-height:1.8;border-top:1px solid rgba(255,255,255,0.07);}
+        body.light-mode footer{border-top:1px solid rgba(0,0,0,0.07);}
+
+        @media (max-width:960px){
+            .content-blocks{grid-template-columns:1fr;}
+            .photo-card{width:300px;}
+            .music-bar{right:12px;height:180px;width:50px;}
+            header{padding:30px 20px 16px;}
+            .main-title{font-size:24px;}
+            .control-panel,.gallery-corridor,.content-blocks{padding-left:20px;padding-right:20px;}
+        }
+    </style>
+</head>
+<body>
+    <div class="music-bar">
+        <div class="music-label">回忆音乐</div>
+        <button class="music-btn" id="musicBtn">▶</button>
+        <audio id="bgAudio" src="spk.mp4"></audio>
+    </div>
+
+    <header>
+        <div class="header-wrap">
+            <div>
+                <h1 class="main-title">益新中学 2024级5班全体同学</h1>
+                <p class="sub-title">青春回忆录 · 时光长廊相册 · 论坛式纪念留言墙</p>
+            </div>
+            <div class="header-right">
+                <div class="logo-text">YIXIN</div>
+                <img class="badge-img" src="pic11.jpg" alt="益新校徽">
+            </div>
+        </div>
+    </header>
+
+    <div class="control-panel">
+        <button class="ctrl-btn" id="themeBtn">切换明暗模式</button>
+        <button class="ctrl-btn filter-btn active" data-filter="none">原图</button>
+        <button class="ctrl-btn filter-btn" data-filter="sepia(0.55)">回忆珍藏</button>
+        <a href="https://lmzhub.pages.dev"><button class="ctrl-btn">跳转LMZ‑HUB主页</button></a>
+        <button class="ctrl-btn" id="contactBtn">联系我</button>
+        <button class="ctrl-btn" id="adminBtn">管理员入口</button>
+        <span class="edit-status-tip" id="editTip">🔓管理模式已开启</span>
+    </div>
+
+    <!-- 时光长廊：基础照片 + 同学发帖照片自动汇入 -->
+    <div class="gallery-corridor">
+        <div class="corridor-inner" id="corridorInner">
+            <div class="photo-card">
+                <img src="pic1.jpg" alt=""><div class="photo-caption" data-base="0">相册片段 01</div>
+                <input class="caption-input" data-base="0" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic2.jpg" alt=""><div class="photo-caption" data-base="1">相册片段 02</div>
+                <input class="caption-input" data-base="1" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic3.jpg" alt=""><div class="photo-caption" data-base="2">相册片段 03</div>
+                <input class="caption-input" data-base="2" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic4.jpg" alt=""><div class="photo-caption" data-base="3">相册片段 04</div>
+                <input class="caption-input" data-base="3" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic5.jpg" alt=""><div class="photo-caption" data-base="4">相册片段 05</div>
+                <input class="caption-input" data-base="4" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic6.jpg" alt=""><div class="photo-caption" data-base="5">相册片段 06</div>
+                <input class="caption-input" data-base="5" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic7.jpg" alt=""><div class="photo-caption" data-base="6">相册片段 07</div>
+                <input class="caption-input" data-base="6" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic8.jpg" alt=""><div class="photo-caption" data-base="7">相册片段 08</div>
+                <input class="caption-input" data-base="7" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic9.jpg" alt=""><div class="photo-caption" data-base="8">相册片段 09</div>
+                <input class="caption-input" data-base="8" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic10.jpg" alt=""><div class="photo-caption" data-base="9">相册片段 10</div>
+                <input class="caption-input" data-base="9" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic12.jpg" alt=""><div class="photo-caption" data-base="10">相册片段 11 · 同学投稿</div>
+                <input class="caption-input" data-base="10" placeholder="输入说明文字">
+            </div>
+            <div class="photo-card">
+                <img src="pic13.jpg" alt=""><div class="photo-caption" data-base="11">相册片段 12 · 同学投稿</div>
+                <input class="caption-input" data-base="11" placeholder="输入说明文字">
+            </div>
+            <!-- 同学发帖的照片会自动追加到这里 -->
+        </div>
+    </div>
+
+    <div class="content-blocks">
+        <!-- 论坛式发帖留言墙 -->
+        <div class="block-card" id="forumCard">
+            <h3 class="block-title">回忆论坛 · 说的话与拍的照片</h3>
+            <div class="demo-banner" id="demoBanner">⚠ ，即所有人实时可见。</div>
+            <p class="forum-tip">✍️ 填上你的名字，写几句话，再选一张照片（手机可拍照或从相册选），点"发布"——所有人都能看到，你发的照片还会自动进入上方"时光长廊"。发帖内容长期保存在云端，多年以后回来看依然都在。请勿发布他人隐私信息。</p>
+            <div class="forum-form">
+                <input class="forum-name" id="forumName" maxlength="20" placeholder="你的名字（必填，如：#1）">
+                <textarea class="forum-text" id="forumText" maxlength="500" placeholder="写下你想说的话……（可只发照片）"></textarea>
+                <div class="forum-img-preview-wrap" id="imgPreviewWrap">
+                    <img class="forum-img-preview" id="forumImgPreview" alt="预览">
+                    <button class="forum-img-clear" id="forumImgClear" title="移除照片">✕</button>
+                </div>
+                <div class="forum-form-row">
+                    <div class="forum-left-row">
+                        <button class="forum-img-btn" id="forumImgBtn">📷 选照片 / 拍照</button>
+                        <input type="file" id="forumImgInp" accept="image/*" style="display:none;">
+                        <span class="forum-count" id="forumCount">0/500</span>
+                    </div>
+                    <button class="ctrl-btn forum-submit" id="forumSubmit">发 布</button>
+                </div>
+            </div>
+            <div class="forum-status" id="forumStatus"></div>
+            <div class="forum-form-row" style="margin-bottom:6px;">
+                <strong style="font-size:15px;">大家的帖子</strong>
+                <button class="forum-refresh" id="forumRefresh">手动刷新</button>
+            </div>
+            <div id="forumList"><div class="forum-empty">加载中……</div></div>
+        </div>
+
+        <!-- 纪念视频 -->
+        <div class="block-card">
+            <h3 class="block-title">纪念视频</h3>
+            <div class="video-wrap">
+                <span>视频播放区域<br>（纪念视频为站长统一上传管理，暂不支持网页上传视频）</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 看大图 -->
+    <div class="img-viewer" id="imgViewer"><img id="imgViewerImg" alt="大图查看"></div>
+
+    <!-- 联系我弹窗 -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-box">
+            <h3 class="modal-title">联系我</h3>
+            <img src="wechat.jpg" class="qr-img" alt="微信二维码">
+            <div class="modal-btns">
+                <button class="ctrl-btn" id="closeContact">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员弹窗 -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-box">
+            <h3 class="modal-title">管理员登录</h3>
+            <input type="password" class="modal-input" id="adminPwd" placeholder="请输入管理员密码">
+            <div id="adminTip" style="margin-bottom:14px;min-height:20px;"></div>
+            <div class="modal-btns">
+                <button class="ctrl-btn" id="cancelAdmin">取消</button>
+                <button class="ctrl-btn" id="submitAdmin">登录</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        LMZ27 李明泽 提供部署、由 GitHub 开源提供海外服务器<br>
+        源码可开放，请联系开发者<br>
+        @最终解释权归 LMZ27 所有 · 益新中学
+    </footer>
+
+<script>
+    /* ================= 音乐控制 ================= */
+    const audio = document.getElementById('bgAudio');
+    const musicBtn = document.getElementById('musicBtn');
+    let isPlaying = false;
+    musicBtn.addEventListener('click', ()=>{
+        if(!isPlaying){ audio.play(); musicBtn.textContent = "❚❚"; isPlaying = true; }
+        else{ audio.pause(); musicBtn.textContent = "▶"; isPlaying = false; }
+    });
+
+    /* ================= 明暗模式 ================= */
+    document.getElementById('themeBtn').addEventListener('click', ()=>{
+        document.body.classList.toggle('light-mode');
+    });
+
+    /* ================= 相册滤镜 ================= */
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    function applyFilter(f){
+        document.querySelectorAll('.photo-card img').forEach(img=>{ img.style.filter = f; });
+    }
+    filterBtns.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            filterBtns.forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilter(btn.dataset.filter);
+        });
+    });
+
+    /* ================= 弹窗 ================= */
+    const contactModal = document.getElementById('contactModal');
+    const adminModal = document.getElementById('adminModal');
+    document.getElementById('contactBtn').addEventListener('click',()=>contactModal.classList.add('show'));
+    document.getElementById('closeContact').addEventListener('click',()=>contactModal.classList.remove('show'));
+    document.getElementById('adminBtn').addEventListener('click',()=>adminModal.classList.add('show'));
+    document.getElementById('cancelAdmin').addEventListener('click',()=>adminModal.classList.remove('show'));
+
+    /* ================= 大图查看 ================= */
+    const imgViewer = document.getElementById('imgViewer');
+    const imgViewerImg = document.getElementById('imgViewerImg');
+    window.__imgView = (src)=>{ imgViewerImg.src = src; imgViewer.classList.add('show'); };
+    imgViewer.addEventListener('click',()=>imgViewer.classList.remove('show'));
+
+    /* ================= 管理员（密码不变） ================= */
+    // 说明：删除云端帖子时，密码会发给 Cloudflare 服务端比对（环境变量 ADMIN_PASSWORD），
+    // 请在部署时把该环境变量设置成同一个密码；网页源码里的这串明文建议以后更换。
+    const ADMIN_PASSWORD = "135790LMZuser";
+    let isAdminMode = false;
+
+    document.getElementById('submitAdmin').addEventListener('click',()=>{
+        const pwd = document.getElementById('adminPwd').value.trim();
+        const tip = document.getElementById('adminTip');
+        if(pwd === ADMIN_PASSWORD){
+            tip.innerText = "✅登录成功，已开启管理模式";
+            setTimeout(()=>{ adminModal.classList.remove('show'); toggleAdmin(); },600);
+        }else{
+            tip.innerText = "❌密码错误 请重试！！！";
+        }
+    });
+
+    function toggleAdmin(){
+        isAdminMode = !isAdminMode;
+        document.body.classList.toggle('admin-on', isAdminMode);
+        document.getElementById('editTip').style.display = isAdminMode ? "inline-block" : "none";
+        renderPosts();
+    }
+
+    /* ================= 相册基础照片说明（管理员可改，存本机） ================= */
+    const BASE_CAPTION_KEY = 'albumCaptions';
+    function loadCaptions(){
+        try{
+            const arr = JSON.parse(localStorage.getItem(BASE_CAPTION_KEY)||"[]");
+            document.querySelectorAll('.caption-input').forEach(inp=>{
+                const v = arr[Number(inp.dataset.base)];
+                if(v !== undefined){ inp.value = v; }
+            });
+            refreshCaptions();
+        }catch(e){}
+    }
+    function refreshCaptions(){
+        document.querySelectorAll('.caption-input').forEach(inp=>{
+            const cap = document.querySelector(`.photo-caption[data-base="${inp.dataset.base}"]`);
+            if(cap && inp.value) cap.innerText = inp.value;
+        });
+    }
+    document.querySelectorAll('.caption-input').forEach(inp=>{
+        inp.addEventListener('input', ()=>{
+            refreshCaptions();
+            const arr = [];
+            document.querySelectorAll('.caption-input').forEach(i=>arr.push(i.value));
+            localStorage.setItem(BASE_CAPTION_KEY, JSON.stringify(arr));
+        });
+    });
+
+    /* ================= 论坛发帖（云端 API） ================= */
+    const API_URL = '/api/posts';
+    const forumList = document.getElementById('forumList');
+    const forumStatus = document.getElementById('forumStatus');
+    const forumName = document.getElementById('forumName');
+    const forumText = document.getElementById('forumText');
+    const forumCount = document.getElementById('forumCount');
+    const forumSubmit = document.getElementById('forumSubmit');
+    const forumImgBtn = document.getElementById('forumImgBtn');
+    const forumImgInp = document.getElementById('forumImgInp');
+    const forumImgPreview = document.getElementById('forumImgPreview');
+    const imgPreviewWrap = document.getElementById('imgPreviewWrap');
+    const demoBanner = document.getElementById('demoBanner');
+    const corridorInner = document.getElementById('corridorInner');
+
+    let postsCache = [];
+    let pendingImage = null;
+    let demoMode = false;
+    // 记住名字，下次发帖不用再填
+    forumName.value = localStorage.getItem('forumName') || "";
+
+    document.getElementById('forumRefresh').addEventListener('click', loadPosts);
+
+    forumText.addEventListener('input', ()=>{ forumCount.textContent = forumText.value.length + "/500"; });
+
+    forumImgBtn.addEventListener('click', ()=>forumImgInp.click());
+    document.getElementById('forumImgClear').addEventListener('click', ()=>{
+        pendingImage = null; forumImgInp.value = "";
+        imgPreviewWrap.style.display = "none";
+        forumStatus.textContent = "";
+    });
+
+    // 选照片 → 前端自动压缩（最长边1280px），手机上会弹出"拍照/从相册选择"
+    forumImgInp.addEventListener('change', ()=>{
+        const file = forumImgInp.files[0];
+        if(!file) return;
+        if(!file.type.startsWith('image/')){
+            showStatus("❌ 只支持照片哦，视频请交给站长统一上传", "err");
+            forumImgInp.value = "";
+            return;
+        }
+        const reader = new FileReader();
+        const img = new Image();
+        reader.onload = e => { img.src = e.target.result; };
+        img.onload = () => {
+            const max = 1280;
+            let w = img.width, h = img.height;
+            if(Math.max(w,h) > max){
+                const r = max / Math.max(w,h);
+                w = Math.round(w*r); h = Math.round(h*r);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            pendingImage = canvas.toDataURL('image/jpeg',0.72);
+            if(pendingImage.length > 950000){
+                showStatus("❌ 这张照片太大了，请换一张或裁小一点", "err");
+                pendingImage = null;
+                return;
+            }
+            forumImgPreview.src = pendingImage;
+            imgPreviewWrap.style.display = "block";
+            showStatus("✅ 照片已就绪，会随帖子一起发布，并自动进入时光长廊", "ok");
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function showStatus(msg, cls){
+        forumStatus.textContent = msg;
+        forumStatus.className = "forum-status " + (cls||"");
+    }
+    function esc(s){
+        return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+    function dataURLtoBlob(dataURL){
+        const parts = dataURL.split(',');
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const bin = atob(parts[1]);
+        const arr = new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+        return new Blob([arr],{type:mime});
+    }
+
+    // 发布
+    forumSubmit.addEventListener('click', async ()=>{
+        const name = forumName.value.trim();
+        const text = forumText.value.trim();
+        if(!name){ showStatus("❌ 请先填上你的名字，让大家知道是谁发的", "err"); forumName.focus(); return; }
+        if(!text && !pendingImage){ showStatus("❌ 写点内容或选一张照片再发布", "err"); return; }
+        forumSubmit.disabled = true;
+        showStatus("发布中……","");
+        try{
+            const fd = new FormData();
+            fd.append('name', name);
+            fd.append('text', text);
+            if(pendingImage) fd.append('image', dataURLtoBlob(pendingImage), 'photo.jpg');
+            if(demoMode) throw new Error("demo");
+            const res = await fetch(API_URL, { method:'POST', body: fd });
+            const data = await res.json();
+            if(!data.ok) throw new Error(data.error || "发布失败");
+            localStorage.setItem('forumName', name);
+            showStatus("✅ 发布成功！大家的帖子已更新","ok");
+            resetForm();
+            loadPosts();
+        }catch(err){
+            if(err.message === "demo" || demoMode){
+                // 本地预览模式：模拟发布，仅本机可见
+                const list = JSON.parse(localStorage.getItem('demoPosts')||"[]");
+                list.unshift({ id: Date.now(), name, text, localImage: pendingImage, created_at: new Date().toLocaleString() });
+                localStorage.setItem('demoPosts', JSON.stringify(list));
+                localStorage.setItem('forumName', name);
+                showStatus("✅ 已模拟发布（本地预览模式，仅这台设备可见）。部署到 Cloudflare 后即全网可见。","ok");
+                resetForm();
+                loadPosts();
+            }else{
+                showStatus("❌ " + err.message, "err");
+            }
+        }
+        forumSubmit.disabled = false;
+    });
+
+    function resetForm(){
+        forumText.value = ""; forumCount.textContent = "0/500";
+        pendingImage = null; forumImgInp.value = "";
+        imgPreviewWrap.style.display = "none";
+    }
+
+    // 加载帖子
+    async function loadPosts(){
+        try{
+            const res = await fetch(API_URL + '?t=' + Date.now());
+            const data = await res.json();
+            if(!data.ok) throw new Error("bad");
+            postsCache = data.posts;
+            demoMode = false;
+            demoBanner.style.display = "none";
+        }catch(e){
+            demoMode = true;
+            demoBanner.style.display = "block";
+            postsCache = JSON.parse(localStorage.getItem('demoPosts')||"[]");
+        }
+        renderPosts();
+        renderCorridor();
+    }
+
+    // 渲染帖子列表
+    function renderPosts(){
+        if(!postsCache.length){
+            forumList.innerHTML = '<div class="forum-empty">还没有帖子，快来发第一个帖子吧 🎉</div>';
+            return;
+        }
+        let html = "";
+        postsCache.forEach(p=>{
+            const initial = esc((p.name||"匿")[0].toUpperCase());
+            const imgTag = p.has_image
+                ? `<img class="forum-photo" src="${API_URL}?img=${p.id}" alt="照片" loading="lazy" onclick="window.__imgView(this.src)">`
+                : (p.localImage ? `<img class="forum-photo" src="${p.localImage}" alt="照片" onclick="window.__imgView(this.src)">` : "");
+            const delBtn = `<button class="forum-del" data-id="${p.id}">删除</button>`;
+            html += `
+            <div class="forum-item">
+                <div class="forum-avatar">${initial}</div>
+                <div class="forum-body">
+                    <div class="forum-meta">
+                        <span class="forum-nickname">${esc(p.name)}</span>
+                        <span class="forum-time">${esc(p.created_at||"")}</span>
+                        ${delBtn}
+                    </div>
+                    ${p.text ? `<div class="forum-content">${esc(p.text)}</div>` : ""}
+                    ${imgTag}
+                </div>
+            </div>`;
+        });
+        forumList.innerHTML = html;
+        // 删除按钮（管理员）
+        forumList.querySelectorAll('.forum-del').forEach(btn=>{
+            btn.addEventListener('click', ()=>deletePost(btn.dataset.id));
+        });
+    }
+
+    // 同学发的照片自动汇入时光长廊
+    function renderCorridor(){
+        // 先移除旧的动态卡片
+        corridorInner.querySelectorAll('.photo-card[data-dynamic]').forEach(el=>el.remove());
+        if(demoMode){
+            postsCache.forEach(p=>{
+                if(p.localImage) addDynamicCard(p.localImage, p.name, "本地预览 · " + (p.created_at||""), null);
+            });
+            return;
+        }
+        postsCache.forEach(p=>{
+            if(p.has_image) addDynamicCard(API_URL + '?img=' + p.id, p.name, p.created_at||"", p.id);
+        });
+    }
+    function addDynamicCard(src, name, time, postId){
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+        card.setAttribute('data-dynamic','1');
+        card.innerHTML = `
+            <img src="${src}" alt="" loading="lazy" onclick="window.__imgView(this.src)">
+            <span class="photo-tag">同学投稿 · ${esc(name)}</span>
+            <div class="photo-caption">${esc(name)} 发布于 ${esc(time)}</div>
+            ${postId ? `<button class="card-del" data-id="${postId}" title="删除这张照片帖">✕</button>` : ""}
+        `;
+        corridorInner.appendChild(card);
+        const del = card.querySelector('.card-del');
+        if(del) del.addEventListener('click', ()=>deletePost(del.dataset.id));
+    }
+
+    // 删除帖子（管理员，服务端校验密码）
+    async function deletePost(id){
+        if(!confirm("确定删除这条帖子吗？删除后所有人都不再看到。")) return;
+        try{
+            const res = await fetch(API_URL, {
+                method:'DELETE',
+                headers:{ 'Content-Type':'application/json' },
+                body: JSON.stringify({ id: Number(id), password: ADMIN_PASSWORD })
+            });
+            const data = await res.json();
+            if(!data.ok) throw new Error(data.error || "删除失败");
+            showStatus("✅ 已删除","ok");
+            loadPosts();
+        }catch(err){
+            showStatus("❌ " + err.message, "err");
+        }
+    }
+
+    // 初始化 + 每 15 秒自动刷新（实时感）
+    loadPosts();
+    loadCaptions();
+    setInterval(loadPosts, 15000);
+
+    /* ================= 防护：屏蔽快捷键、右键 ================= */
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'F12') e.preventDefault();
+        if(e.ctrlKey && e.key.toLowerCase() === 'u') e.preventDefault();
+        if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') e.preventDefault();
+        if(e.ctrlKey && e.key.toLowerCase() === 'c' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) e.preventDefault();
+    });
+    document.addEventListener('contextmenu',e=>e.preventDefault());
+</script>
+</body>
+</html>
