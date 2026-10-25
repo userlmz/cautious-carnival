@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -153,8 +153,7 @@
         <button class="ctrl-btn filter-btn" data-filter="sepia(0.55)">回忆珍藏</button>
         <a href="https://lmzhub.pages.dev"><button class="ctrl-btn">跳转LMZ‑HUB主页</button></a>
         <button class="ctrl-btn" id="contactBtn">联系我</button>
-        <a href="https://wubanmemory.pages.dev"><button class="ctrl-btn">跳转最新支链请多多访问！</button></a>
-        <button class="ctrl-btn" id="adminBtn">管理员入口非root权限切勿访问！！！</button>
+        <button class="ctrl-btn" id="adminBtn">管理员入口</button>
         <span class="edit-status-tip" id="editTip">🔓管理模式已开启</span>
     </div>
 
@@ -217,11 +216,11 @@
         <!-- 论坛式发帖留言墙 -->
         <div class="block-card" id="forumCard">
             <h3 class="block-title">回忆论坛 · 说的话与拍的照片</h3>
-            <div class="demo-banner" id="demoBanner">⚠ ，即所有人实时可见。</div>
+            <div class="demo-banner" id="demoBanner">⚠ 本地预览模式：云端数据库尚未连接。现在可以体验发帖流程（仅本机可见），按《部署教程》部署到 Cloudflare 后即所有人实时可见。</div>
             <p class="forum-tip">✍️ 填上你的名字，写几句话，再选一张照片（手机可拍照或从相册选），点"发布"——所有人都能看到，你发的照片还会自动进入上方"时光长廊"。发帖内容长期保存在云端，多年以后回来看依然都在。请勿发布他人隐私信息。</p>
             <div class="forum-form">
-                <input class="forum-name" id="forumName" maxlength="20" placeholder="你的名字（必填，如：#1）">
-                <textarea class="forum-text" id="forumText" maxlength="500" placeholder="写下你想说的话……（可只发照片）"></textarea>
+                <input class="forum-name" id="forumName" maxlength="20" placeholder="你的名字（必填，如：李明泽）">
+                <textarea class="forum-text" id="forumText" maxlength="500" placeholder="写下你想说的话……（可只发照片不写字，最多500字）"></textarea>
                 <div class="forum-img-preview-wrap" id="imgPreviewWrap">
                     <img class="forum-img-preview" id="forumImgPreview" alt="预览">
                     <button class="forum-img-clear" id="forumImgClear" title="移除照片">✕</button>
@@ -523,16 +522,19 @@
         renderCorridor();
     }
 
-    // 渲染帖子列表
+    // 渲染帖子列表（默认收紧：只显示最近3条，其余折叠）
+    const POSTS_PREVIEW = 3;
+    let postsExpanded = false;
     function renderPosts(){
         if(!postsCache.length){
             forumList.innerHTML = '<div class="forum-empty">还没有帖子，快来发第一个帖子吧 🎉</div>';
             return;
         }
+        const shown = postsExpanded ? postsCache : postsCache.slice(0, POSTS_PREVIEW);
         let html = "";
-        postsCache.forEach(p=>{
+        shown.forEach(p=>{
             const initial = esc((p.name||"匿")[0].toUpperCase());
-            const imgTag = p.has_image
+            const imgTag = p.hasImage
                 ? `<img class="forum-photo" src="${API_URL}?img=${p.id}" alt="照片" loading="lazy" onclick="window.__imgView(this.src)">`
                 : (p.localImage ? `<img class="forum-photo" src="${p.localImage}" alt="照片" onclick="window.__imgView(this.src)">` : "");
             const delBtn = `<button class="forum-del" data-id="${p.id}">删除</button>`;
@@ -542,7 +544,7 @@
                 <div class="forum-body">
                     <div class="forum-meta">
                         <span class="forum-nickname">${esc(p.name)}</span>
-                        <span class="forum-time">${esc(p.created_at||"")}</span>
+                        <span class="forum-time">${esc(p.createdAt || p.created_at || "")}</span>
                         ${delBtn}
                     </div>
                     ${p.text ? `<div class="forum-content">${esc(p.text)}</div>` : ""}
@@ -550,7 +552,23 @@
                 </div>
             </div>`;
         });
+        const hidden = postsCache.length - shown.length;
+        if(hidden > 0){
+            html += `<div style="text-align:center;padding:12px 0 4px;">
+                <button class="ctrl-btn" id="postsToggle" style="font-size:14px;padding:9px 26px;">📅 展开更早的 ${hidden} 条回忆</button>
+            </div>`;
+        }else if(postsCache.length > POSTS_PREVIEW){
+            html += `<div style="text-align:center;padding:12px 0 4px;">
+                <button class="ctrl-btn" id="postsToggle" style="font-size:14px;padding:9px 26px;">⬆ 收起，只看最近 ${POSTS_PREVIEW} 条</button>
+            </div>`;
+        }
         forumList.innerHTML = html;
+        const tg = document.getElementById('postsToggle');
+        if(tg) tg.addEventListener('click', ()=>{
+            postsExpanded = !postsExpanded;
+            renderPosts();
+            if(!postsExpanded) forumCard.scrollIntoView({behavior:'smooth', block:'start'});
+        });
         // 删除按钮（管理员）
         forumList.querySelectorAll('.forum-del').forEach(btn=>{
             btn.addEventListener('click', ()=>deletePost(btn.dataset.id));
@@ -568,7 +586,7 @@
             return;
         }
         postsCache.forEach(p=>{
-            if(p.has_image) addDynamicCard(API_URL + '?img=' + p.id, p.name, p.created_at||"", p.id);
+            if(p.hasImage) addDynamicCard(API_URL + '?img=' + p.id, p.name, p.createdAt || p.created_at || "", p.id);
         });
     }
     function addDynamicCard(src, name, time, postId){
@@ -590,10 +608,8 @@
     async function deletePost(id){
         if(!confirm("确定删除这条帖子吗？删除后所有人都不再看到。")) return;
         try{
-            const res = await fetch(API_URL, {
-                method:'DELETE',
-                headers:{ 'Content-Type':'application/json' },
-                body: JSON.stringify({ id: Number(id), password: ADMIN_PASSWORD })
+            const res = await fetch(API_URL + '?id=' + encodeURIComponent(id) + '&password=' + encodeURIComponent(ADMIN_PASSWORD), {
+                method:'DELETE'
             });
             const data = await res.json();
             if(!data.ok) throw new Error(data.error || "删除失败");
