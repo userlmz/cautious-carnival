@@ -224,8 +224,16 @@ export async function onRequestDelete(context) {
 
   try {
     const url = new URL(request.url);
-    const id = parseInt(url.searchParams.get("id"), 10);
-    const given = url.searchParams.get("password") || "";
+    let id = parseInt(url.searchParams.get("id"), 10);
+    let given = url.searchParams.get("password") || "";
+    // Fallback: also accept JSON body (old frontend sends id/password in body)
+    if (!id) {
+      try {
+        const body = await request.json();
+        id = parseInt(body && body.id, 10);
+        if (!given) given = (body && body.password || "").toString();
+      } catch (e) {}
+    }
     if (!id) return json({ error: "id required" }, 400);
 
     let fromEnv = "";
